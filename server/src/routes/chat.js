@@ -26,6 +26,14 @@ export async function chatRoutes(app) {
     return { messages: rows.reverse().map(mapMessage) };
   });
 
+  app.post('/api/chat/send', { preHandler: [auth] }, async (req, reply) => {
+    const { channel = 'global', text, replyTo } = req.body || {};
+    if (!text || !text.trim()) return reply.code(400).send({ error: 'empty' });
+    // Reuse hub to persist and broadcast
+    await app.hub.handleChatMessage({ user: req.user }, { text, channel, replyTo });
+    return { ok: true };
+  });
+
   // Channels = global + all projects user is member of + DMs (future)
   app.get('/api/channels', { preHandler: [auth] }, async (req) => {
     const isAdmin = req.user.role === 'owner' || req.user.role === 'admin';

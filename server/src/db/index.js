@@ -13,8 +13,29 @@ if (!fs.existsSync(DATA_DIR)) fs.mkdirSync(DATA_DIR, { recursive: true });
 let SQL;
 let db;
 
+let sqlWasmLocated = false;
+function locateSqlWasm() {
+  if (sqlWasmLocated) return;
+  sqlWasmLocated = true;
+  // sql.js looks for sql-wasm.wasm relative to itself; in bundlers/serverless we set a global locateFile.
+  try {
+    const candidates = [
+      path.resolve(__dirname, '../../../node_modules/sql.js/dist/sql-wasm.wasm'),
+      path.resolve(__dirname, '../node_modules/sql.js/dist/sql-wasm.wasm')
+    ];
+    for (const c of candidates) {
+      if (fs.existsSync(c)) {
+        globalThis.__NEXA_SQL_WASM__ = c;
+        return;
+      }
+    }
+  } catch {}
+}
+
 export async function initDb() {
-  SQL = await initSqlJs();
+  locateSqlWasm();
+  const opts = globalThis.__NEXA_SQL_WASM__ ? { locateFile: () => globalThis.__NEXA_SQL_WASM__ } : {};
+  SQL = await initSqlJs(opts);
   const buf = fs.existsSync(DB_PATH) ? fs.readFileSync(DB_PATH) : null;
   db = buf ? new SQL.Database(buf) : new SQL.Database();
   db.run('PRAGMA foreign_keys = ON;');
