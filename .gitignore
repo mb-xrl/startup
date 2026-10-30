@@ -7,3 +7,4 @@ uploads/*
 .env
 .DS_Store
 *.log
+server/package-lock.json
