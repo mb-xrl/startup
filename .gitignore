@@ -1,0 +1,10 @@
+node_modules
+dist
+data/*
+!data/.gitkeep
+uploads/*
+!uploads/.gitkeep
+.env
+.DS_Store
+*.log
+server/package-lock.json
