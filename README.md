@@ -9,7 +9,7 @@ fast file transfer, WhatsApp-style team chat, projects & kanban tasks, role-base
 
 | Environment | URL |
 |---|---|
-| **Production (Vercel)** | https://nexa-workspace-seven.vercel.app |
+| **Production (Vercel)** | https://startup-mb.vercel.app |
 | Local dev | http://localhost:5173 |
 
 The landing page lives at `/`; open **Create your workspace** to register — the first account on any fresh deployment automatically becomes the **Owner**.
