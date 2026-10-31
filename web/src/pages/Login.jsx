@@ -36,7 +36,7 @@ export default function Login() {
             <Icon name="logo" size={22} />
           </div>
           <div>
-            <h1 className="text-2xl font-semibold tracking-tight">Nexa</h1>
+            <h1 className="text-2xl font-semibold tracking-tight">Teamroom</h1>
             <p className="text-sm text-muted">Realtime workspace for teams</p>
           </div>
         </div>

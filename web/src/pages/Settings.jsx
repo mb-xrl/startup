@@ -46,9 +46,9 @@ export default function Settings() {
       </div>
 
       <div className="card p-5">
-        <h3 className="font-semibold mb-2 flex items-center gap-2"><Icon name="zap" size={16}/> About Nexa</h3>
+        <h3 className="font-semibold mb-2 flex items-center gap-2"><Icon name="zap" size={16}/> About Teamroom</h3>
         <div className="text-sm text-muted space-y-2">
-          <p>Nexa is a realtime workspace for companies: chat, file transfer, projects and tasks — all in one place.</p>
+          <p>Teamroom is a realtime workspace for companies: chat, file transfer, projects and tasks — all in one place.</p>
           <p className="text-xs">Version 0.1.0 · Built with Fastify, WebSockets and React · All messages and updates are pushed to your team in milliseconds.</p>
         </div>
       </div>

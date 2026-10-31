@@ -1,7 +1,7 @@
-# Style — Nexa (landing)
+# Style — Teamroom (landing)
 
 ANCESTOR:         a control-room dispatch board — the wall of dense, always-updating
-                  status panels a operations team watches. Nexa's ancestor is not a
+                  status panels a operations team watches. Teamroom's ancestor is not a
                   "team collaboration app", it's the board the team gathers around.
                   Palette, type and density follow from that object.
 
@@ -51,4 +51,4 @@ REJECTED:         D2 Swiss Poster (white, #FF2D00, 100px grotesk, offset shadows
                   workspace should feel like a tool you watch, not a wall you pass.
                   D3 Operations Brief (cream #F5F3EE, ink serif 400, vermilion) —
                   closest to recipe R1 which the skill flags as the most common
-                  fallback; Nexa is realtime data, not editorial print.
+                  fallback; Teamroom is realtime data, not editorial print.

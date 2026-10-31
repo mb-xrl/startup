@@ -7,7 +7,10 @@ import { fileURLToPath } from 'node:url';
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
 const IS_SERVERLESS = !!process.env.VERCEL || !!process.env.AWS_LAMBDA_FUNCTION_VERSION;
 const DATA_DIR = IS_SERVERLESS ? '/tmp' : path.resolve(__dirname, '../../../data');
-const DB_PATH = path.join(DATA_DIR, 'nexa.db');
+const DB_PATH = process.env.TEAMROOM_DB_PATH || process.env.NEXA_DB_PATH || path.join(DATA_DIR, 'teamroom.db');
+// Databases created before the Teamroom rebrand; loaded once, then persisted
+// under the new name so no local data is lost by the rename.
+const LEGACY_DB_PATH = path.join(DATA_DIR, 'nexa.db');
 
 if (!fs.existsSync(DATA_DIR)) { try { fs.mkdirSync(DATA_DIR, { recursive: true }); } catch {} }
 
@@ -30,15 +33,17 @@ function locateSqlWasm() {
       ];
       for (const c of candidates) if (fs.existsSync(c)) { resolved = c; break; }
     }
-    if (resolved) globalThis.__NEXA_SQL_WASM__ = resolved;
+    if (resolved) globalThis.__TEAMROOM_SQL_WASM__ = resolved;
   } catch {}
 }
 
 export async function initDb() {
   locateSqlWasm();
-  const opts = globalThis.__NEXA_SQL_WASM__ ? { locateFile: () => globalThis.__NEXA_SQL_WASM__ } : {};
+  const opts = globalThis.__TEAMROOM_SQL_WASM__ ? { locateFile: () => globalThis.__TEAMROOM_SQL_WASM__ } : {};
   SQL = await initSqlJs(opts);
-  const buf = fs.existsSync(DB_PATH) ? fs.readFileSync(DB_PATH) : null;
+  let buf = null;
+  if (fs.existsSync(DB_PATH)) buf = fs.readFileSync(DB_PATH);
+  else if (fs.existsSync(LEGACY_DB_PATH)) buf = fs.readFileSync(LEGACY_DB_PATH);
   db = buf ? new SQL.Database(buf) : new SQL.Database();
   db.run('PRAGMA foreign_keys = ON;');
   migrate();

@@ -1,4 +1,4 @@
-# Nexa ⚡ — Realtime Workspace for Companies
+# Teamroom — Realtime Workspace for Companies
 
 A production-grade, fully-realtime team collaboration platform:
 fast file transfer, WhatsApp-style team chat, projects & kanban tasks, role-based access, presence & live notifications — all updating instantly over WebSockets.

@@ -2,7 +2,7 @@ import React, { useEffect, useRef, useState } from 'react';
 import './Landing.css';
 
 /**
- * Nexa landing — "Dispatch Board" (see docs/STYLE.md).
+ * Teamroom landing — "Dispatch Board" (see docs/STYLE.md).
  * Ancestor: a control-room dispatch board. Near-black panel, mono display type,
  * dense real-data tables, one signal-green accent, hairline rules, no shadows,
  * no gradients, nothing centered. Signature: the board measures itself — a live
@@ -68,9 +68,9 @@ function BoardNav({ onSignIn, onStartTrial }) {
   return (
     <header className="lb-nav">
       <div className="lb-nav-in">
-        <a className="lb-brand" href="#top" aria-label="Nexa home">
+        <a className="lb-brand" href="#top" aria-label="Teamroom home">
           <span className="lb-brand-mark" aria-hidden="true"><SvgLogo /></span>
-          <span className="lb-brand-name">NEXA</span>
+          <span className="lb-brand-name">TEAMROOM</span>
         </a>
         <nav className="lb-nav-links" aria-label="Sections">
           <a href="#system">System</a>
@@ -101,7 +101,7 @@ function Masthead({ onStartTrial, onSignIn }) {
           A dispatch board for the whole company.
         </h1>
         <p className="lb-lead">
-          Nexa puts chat, files, projects and tasks on one live board.
+          Teamroom puts chat, files, projects and tasks on one live board.
           Every change lands on every screen in under ten milliseconds.
           No plugins, no integrations to maintain, nothing to sync.
         </p>
@@ -428,7 +428,7 @@ function BoardFooter({ onStartTrial, onSignIn }) {
         <table className="lb-table lb-footer-meta">
           <tbody>
             <tr>
-              <td className="lb-note">Software</td><td>Nexa — realtime workspace</td>
+              <td className="lb-note">Software</td><td>Teamroom — realtime workspace</td>
               <td className="lb-note">Stack</td><td>Node · Fastify · ws · SQLite · React</td>
             </tr>
             <tr>
@@ -437,7 +437,7 @@ function BoardFooter({ onStartTrial, onSignIn }) {
             </tr>
           </tbody>
         </table>
-        <p className="lb-fineprint">© {new Date().getFullYear()} Nexa. Built for teams that ship.</p>
+        <p className="lb-fineprint">© {new Date().getFullYear()} Teamroom. Built for teams that ship.</p>
       </div>
     </footer>
   );
