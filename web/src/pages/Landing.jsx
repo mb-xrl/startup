@@ -1,412 +1,407 @@
-import React from 'react';
-import { Icon, icons } from '../components/Icons.jsx';
+import React, { useEffect, useRef, useState } from 'react';
+import './Landing.css';
+
+/**
+ * Nexa landing — "Dispatch Board" (see docs/STYLE.md).
+ * Ancestor: a control-room dispatch board. Near-black panel, mono display type,
+ * dense real-data tables, one signal-green accent, hairline rules, no shadows,
+ * no gradients, nothing centered. Signature: the board measures itself — a live
+ * latency probe printing real measurements beside the product's real spec index.
+ */
+
+const SPECS = [
+  { n: '01', label: 'REALTIME CORE', value: 'WebSocket', note: 'native ws bus, auto-poll fallback ≤1.5 s' },
+  { n: '02', label: 'BROADCAST LATENCY', value: '<10 ms', note: 'measured on LAN, optimistic client-side' },
+  { n: '03', label: 'FILE TRANSFER', value: '500 MB', note: 'multipart streaming, drag-and-drop' },
+  { n: '04', label: 'CHANNELS', value: '1 + N', note: 'one global, one per project, auto-created' },
+  { n: '05', label: 'ROLES', value: '5 built-in', note: 'owner · admin · manager · employee · viewer + custom' },
+  { n: '06', label: 'TASK BOARD', value: '3 columns', note: 'drag-and-drop, optimistic, live done-toggles' },
+  { n: '07', label: 'AUTH', value: 'JWT 7 d', note: 'bcrypt hashing, first user becomes owner' },
+  { n: '08', label: 'DATABASE', value: 'SQLite', note: 'WASM build, one file, zero config' },
+];
+
+const PILLARS = [
+  {
+    n: '01',
+    title: 'Chat that keeps up with the room',
+    body: 'Global and per-project channels. Typing indicators, presence dots, grouped messages, enter to send. A message appears on every screen in the workspace in under ten milliseconds — no refresh, no polling spinner, no "seen" theatre.',
+    spec: ['Channels auto-created per project', 'Typing + presence in realtime', 'History paginated, sent receipts'],
+  },
+  {
+    n: '02',
+    title: 'Files move like local files',
+    body: 'Drop a folder of mockups on the dashboard and watch the progress bars race. Up to 500 MB per file, streamed straight to disk, attached to the project permanently, downloadable at full speed by everyone in the room.',
+    spec: ['Drag-and-drop anywhere', 'Per-project file spaces', 'Streaming download, no buffering'],
+  },
+  {
+    n: '03',
+    title: 'The board is the meeting',
+    body: 'Tasks live in three columns. Drag them, assign them, mark them done with one click. Everyone watching the board sees the card move the moment it moves — the standup happens in the tool, not about the tool.',
+    spec: ['Assignees, priorities, due dates', 'Optimistic moves with rollback', 'Done toggles broadcast live'],
+  },
+  {
+    n: '04',
+    title: 'Roles that mean something',
+    body: 'Five built-in roles plus custom ones with per-capability permissions — projects, tasks, chat, files, member management. The first account on a fresh workspace becomes the owner; everyone else is invited with the least access they need.',
+    spec: ['Granular permission checkboxes', 'Invite by email, revoke instantly', 'Owner bootstrap, no setup wizard'],
+  },
+];
 
 export default function Landing({ onSignIn, onStartTrial }) {
   return (
-    <div className="min-h-screen bg-bg text-fg">
-      <Nav onSignIn={onSignIn} onStartTrial={onStartTrial} />
-      <Hero onSignIn={onSignIn} onStartTrial={onStartTrial} />
-      <LogoCloud />
-      <Features />
-      <ShowcaseChat />
-      <Workflow />
-      <Testimonials />
+    <div className="lb">
+      <BoardNav onSignIn={onSignIn} onStartTrial={onStartTrial} />
+      <Masthead onStartTrial={onStartTrial} onSignIn={onSignIn} />
+      <SpecIndex />
+      <Pillars />
+      <TheBoard />
       <Pricing onStartTrial={onStartTrial} />
-      <FAQ />
-      <CTA onStartTrial={onStartTrial} />
-      <Footer />
+      <Faq />
+      <BoardFooter onStartTrial={onStartTrial} onSignIn={onSignIn} />
     </div>
   );
 }
 
-function Nav({ onSignIn, onStartTrial }) {
+/* ---------- nav ---------- */
+
+function BoardNav({ onSignIn, onStartTrial }) {
   return (
-    <header className="sticky top-0 z-40 border-b border-border/60 bg-bg/70 backdrop-blur">
-      <div className="max-w-7xl mx-auto px-6 h-16 flex items-center justify-between">
-        <div className="flex items-center gap-2">
-          <div className="w-8 h-8 rounded-lg bg-gradient-to-br from-primary to-accent flex items-center justify-center text-white">
-            <Icon name="logo" size={16} />
-          </div>
-          <span className="font-semibold tracking-tight text-lg">Nexa</span>
-          <span className="chip !py-0 !text-[10px]">Beta</span>
-        </div>
-        <nav className="hidden md:flex items-center gap-7 text-sm text-muted">
-          <a href="#features" className="hover:text-fg transition">Features</a>
-          <a href="#chat" className="hover:text-fg transition">Chat</a>
-          <a href="#workflow" className="hover:text-fg transition">Workflow</a>
-          <a href="#pricing" className="hover:text-fg transition">Pricing</a>
-          <a href="#faq" className="hover:text-fg transition">FAQ</a>
+    <header className="lb-nav">
+      <div className="lb-nav-in">
+        <a className="lb-brand" href="#top" aria-label="Nexa home">
+          <span className="lb-brand-mark" aria-hidden="true"><SvgLogo /></span>
+          <span className="lb-brand-name">NEXA</span>
+        </a>
+        <nav className="lb-nav-links" aria-label="Sections">
+          <a href="#system">System</a>
+          <a href="#board">Board</a>
+          <a href="#pricing">Pricing</a>
+          <a href="#faq">FAQ</a>
         </nav>
-        <div className="flex items-center gap-2">
-          <button onClick={onSignIn} className="btn-ghost">Sign in</button>
-          <button onClick={onStartTrial} className="btn-primary">
-            Start free <Icon name="arrowLeft" size={14} style={{ transform: 'rotate(180deg)' }} />
-          </button>
+        <div className="lb-nav-cta">
+          <button type="button" className="lb-btn lb-btn-ghost" onClick={onSignIn}>Sign in</button>
+          <button type="button" className="lb-btn lb-btn-accent" onClick={onStartTrial}>Create workspace</button>
         </div>
       </div>
     </header>
   );
 }
 
-function Hero({ onStartTrial, onSignIn }) {
+/* ---------- masthead ---------- */
+
+function Masthead({ onStartTrial, onSignIn }) {
   return (
-    <section className="relative overflow-hidden">
-      {/* Glow */}
-      <div className="pointer-events-none absolute inset-x-0 top-0 h-[600px] -z-10">
-        <div className="absolute top-0 left-1/2 -translate-x-1/2 w-[1000px] h-[600px] bg-primary/20 blur-3xl rounded-full" />
-        <div className="absolute top-20 right-10 w-[400px] h-[400px] bg-accent/20 blur-3xl rounded-full" />
+    <section className="lb-mast" id="top">
+      <div className="lb-rail" aria-hidden="true">
+        <span className="lb-rail-num">00</span>
+        <span className="lb-rail-label">Masthead</span>
       </div>
-      {/* Grid */}
-      <div
-        className="pointer-events-none absolute inset-0 -z-10 opacity-[0.04]"
-        style={{
-          backgroundImage:
-            'linear-gradient(currentColor 1px, transparent 1px), linear-gradient(90deg, currentColor 1px, transparent 1px)',
-          backgroundSize: '48px 48px'
-        }}
-      />
-      <div className="max-w-7xl mx-auto px-6 pt-20 pb-24 text-center">
-        <a href="#features" className="inline-flex items-center gap-2 chip hover:border-primary/40 transition mb-6">
-          <Icon name="sparkle" size={12} className="text-accent" />
-          <span>New: Realtime kanban with drag-and-drop</span>
-        </a>
-        <h1 className="text-5xl md:text-7xl font-semibold tracking-tight leading-[1.05]">
-          The workspace where
-          <br />
-          <span className="bg-gradient-to-r from-primary via-accent to-primary bg-clip-text text-transparent">
-            teams actually ship.
-          </span>
+      <div className="lb-mast-main">
+        <h1 className="lb-h1">
+          A dispatch board for the whole company.
         </h1>
-        <p className="mt-6 text-lg text-muted max-w-2xl mx-auto">
-          Chat, files, projects and tasks — all in one place, all updating in real time.
-          Nexa is the blazingly fast collaboration hub your company has been waiting for.
+        <p className="lb-lead">
+          Nexa puts chat, files, projects and tasks on one live board.
+          Every change lands on every screen in under ten milliseconds.
+          No plugins, no integrations to maintain, nothing to sync.
         </p>
-        <div className="mt-8 flex flex-col sm:flex-row items-center justify-center gap-3">
-          <button onClick={onStartTrial} className="btn-primary !px-5 !py-2.5 text-base">
-            Start free — no card required
-            <Icon name="arrowLeft" size={16} style={{ transform: 'rotate(180deg)' }} />
+        <div className="lb-mast-actions">
+          <button type="button" className="lb-btn lb-btn-accent lb-btn-lg" onClick={onStartTrial}>
+            Create your workspace
           </button>
-          <button onClick={onSignIn} className="btn-outline !px-5 !py-2.5 text-base">
-            I already have an account
+          <button type="button" className="lb-btn lb-btn-ghost lb-btn-lg" onClick={onSignIn}>
+            Sign in
           </button>
         </div>
-        <div className="mt-4 text-xs text-muted">Free for up to 10 members · Deploy in 1 minute</div>
-
-        {/* Preview window */}
-        <div className="mt-16 relative max-w-5xl mx-auto">
-          <div className="absolute inset-0 -z-10 bg-gradient-to-b from-primary/10 via-accent/5 to-transparent blur-2xl rounded-3xl" />
-          <div className="card overflow-hidden shadow-2xl border-primary/20">
-            <div className="h-8 bg-surface2 border-b border-border flex items-center gap-1.5 px-3">
-              <span className="w-3 h-3 rounded-full bg-danger/70" />
-              <span className="w-3 h-3 rounded-full bg-warn/70" />
-              <span className="w-3 h-3 rounded-full bg-success/70" />
-              <span className="text-xs text-muted ml-3">nexa.app/dashboard</span>
-            </div>
-            <div className="grid grid-cols-12 bg-bg h-[460px]">
-              {/* Sidebar mock */}
-              <div className="col-span-2 border-r border-border bg-surface p-3 space-y-1 text-xs">
-                <div className="flex items-center gap-2 px-2 py-2 rounded-md bg-surface2 font-medium">
-                  <Icon name="home" size={14}/> Home
-                </div>
-                {['chat','folder','tasks','file','users','settings'].map((i,k) => (
-                  <div key={i} className="flex items-center gap-2 px-2 py-2 rounded-md hover:bg-surface2 text-muted">
-                    <Icon name={i} size={14}/> <span className="capitalize">{i === 'folder' ? 'projects' : i === 'file' ? 'files' : i === 'users' ? 'team' : i}</span>
-                  </div>
-                ))}
-              </div>
-              {/* Kanban mock */}
-              <div className="col-span-10 p-5 bg-bg overflow-hidden">
-                <div className="flex items-center justify-between mb-4">
-                  <div>
-                    <div className="text-xs text-muted">Project</div>
-                    <div className="font-semibold">Launch Q4</div>
-                  </div>
-                  <div className="flex gap-2">
-                    <div className="chip"><Icon name="tasks" size={12}/> 24 tasks</div>
-                    <div className="chip"><Icon name="file" size={12}/> 12 files</div>
-                  </div>
-                </div>
-                <div className="grid grid-cols-3 gap-3">
-                  {[
-                    { t:'To do', c:'text-muted', items:['Design landing','Write copy','Review PR','Plan launch'] },
-                    { t:'In progress', c:'text-primary', items:['Build chat UI','Refactor DB'] },
-                    { t:'Done', c:'text-success', items:['Auth flow','WS hub','Kanban board'] }
-                  ].map(col => (
-                    <div key={col.t} className="rounded-lg bg-surface2/60 border border-border p-2">
-                      <div className={`text-[11px] font-semibold uppercase px-2 py-1 ${col.c}`}>{col.t}</div>
-                      <div className="space-y-2 mt-2">
-                        {col.items.map(t => (
-                          <div key={t} className="rounded-md bg-surface border border-border p-2 text-xs">
-                            <div className="font-medium">{t}</div>
-                            <div className="flex justify-between items-center mt-2">
-                              <span className="text-[10px] text-muted">● medium</span>
-                              <div className="w-4 h-4 rounded-full bg-accent/30" />
-                            </div>
-                          </div>
-                        ))}
-                      </div>
-                    </div>
-                  ))}
-                </div>
-              </div>
-            </div>
-          </div>
-        </div>
-      </div>
-    </section>
-  );
-}
-
-function LogoCloud() {
-  const companies = ['Acme','Linear','Stripe','Vercel','Notion','Figma','Raycast','Supabase'];
-  return (
-    <section className="py-12 border-y border-border/60">
-      <div className="max-w-7xl mx-auto px-6">
-        <p className="text-center text-xs uppercase tracking-widest text-muted mb-6">
-          Trusted by fast-moving teams at
+        <p className="lb-fineprint">
+          Free for up to 10 members. First account becomes the owner. No card required.
         </p>
-        <div className="grid grid-cols-2 md:grid-cols-4 lg:grid-cols-8 gap-6 items-center opacity-70">
-          {companies.map(c => (
-            <div key={c} className="text-center font-semibold tracking-tight text-muted text-xl">
-              {c}
-            </div>
-          ))}
-        </div>
       </div>
     </section>
   );
 }
 
-function Features() {
-  const feats = [
-    { icon:'zap', title:'Millisecond realtime', desc:'Native WebSocket bus with optimistic updates. Mark a task done and everyone sees it instantly.' },
-    { icon:'chat', title:'Built-in chat', desc:'Global channels, per-project rooms, typing indicators, read receipts and presence dots out of the box.' },
-    { icon:'upload', title:'Blazing-fast file transfer', desc:'Drag and drop files up to 500MB. Chunked uploads, streaming downloads, instant sharing.' },
-    { icon:'tasks', title:'Kanban projects', desc:'Drag-and-drop boards, assignees, priorities and due dates. Everything syncs live across tabs.' },
-    { icon:'shield', title:'Roles & permissions', desc:'Custom roles with granular permissions. Invite employees, revoke access, audit everything.' },
-    { icon:'bell', title:'Smart notifications', desc:'Get pinged only on what matters: mentions, assignments, replies. In-app, no spam.' }
-  ];
-  return (
-    <section id="features" className="py-24">
-      <div className="max-w-7xl mx-auto px-6">
-        <div className="text-center max-w-2xl mx-auto mb-14">
-          <div className="chip mb-3"><Icon name="sparkle" size={12}/> Everything you need</div>
-          <h2 className="text-4xl md:text-5xl font-semibold tracking-tight">One app, not ten.</h2>
-          <p className="text-muted mt-4 text-lg">Stop paying for Slack, Notion, Drive, Asana and three more tools. Nexa replaces them all with a single, cohesive workspace.</p>
-        </div>
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-          {feats.map(f => (
-            <div key={f.title} className="card p-6 hover:border-primary/30 transition group">
-              <div className="w-11 h-11 rounded-xl bg-primary/10 text-primary flex items-center justify-center mb-4 group-hover:scale-110 transition">
-                <Icon name={f.icon} size={20}/>
-              </div>
-              <h3 className="font-semibold text-lg">{f.title}</h3>
-              <p className="text-sm text-muted mt-2 leading-relaxed">{f.desc}</p>
-            </div>
-          ))}
-        </div>
-      </div>
-    </section>
-  );
-}
+/* ---------- signature: spec index + live probe ---------- */
 
-function ShowcaseChat() {
+function SpecIndex() {
   return (
-    <section id="chat" className="py-24 bg-surface/60 border-y border-border/60">
-      <div className="max-w-7xl mx-auto px-6 grid lg:grid-cols-2 gap-12 items-center">
-        <div>
-          <div className="chip mb-3"><Icon name="chat" size={12}/> Messaging</div>
-          <h2 className="text-4xl md:text-5xl font-semibold tracking-tight">Chat that feels like a text with your team.</h2>
-          <p className="text-muted mt-4 text-lg leading-relaxed">
-            Global channels, per-project rooms, typing bubbles, presence dots, read receipts, threaded replies — everything you expect from a modern messaging app, built directly into your workspace.
+    <section className="lb-section" id="system">
+      <div className="lb-rail" aria-hidden="true">
+        <span className="lb-rail-num">01</span>
+        <span className="lb-rail-label">System</span>
+      </div>
+      <div className="lb-section-main">
+        <div className="lb-section-head">
+          <h2 className="lb-h2">The spec sheet</h2>
+          <p className="lb-section-sub">
+            Real limits from the running system — not marketing numbers. The probe on the
+            right is measuring this deployment right now.
           </p>
-          <ul className="mt-6 space-y-3 text-sm">
-            {[
-              'WhatsApp-style grouped messages',
-              'Online/offline presence in realtime',
-              'Typing indicators across channels',
-              'Per-project channels, auto-created for every project',
-              'Emoji reactions & replies (coming soon)'
-            ].map(x => (
-              <li key={x} className="flex items-start gap-2">
-                <Icon name="check" size={18} className="text-success mt-0.5 shrink-0"/> <span>{x}</span>
-              </li>
-            ))}
-          </ul>
         </div>
-        <div className="card p-5 shadow-soft">
-          <div className="flex items-center gap-3 pb-3 border-b border-border">
-            <Icon name="hash" size={18}/>
-            <div>
-              <div className="font-semibold text-sm">#general</div>
-              <div className="text-xs text-muted">12 members · 3 online</div>
-            </div>
-          </div>
-          <div className="py-4 space-y-4 max-h-72 overflow-hidden">
-            <Msg color="#6366f1" name="Alex" time="09:42" text="Just pushed the new landing page — review?"/>
-            <Msg color="#ec4899" name="Sara" time="09:43" text="Looks fire 🔥 I'll add the CTA in 5"/>
-            <Msg color="#10b981" name="Dev" time="09:45" text="Deployment is green on prod, going out now"/>
-            <div className="flex gap-3 pl-12 text-xs text-muted">
-              <span className="dots"><span/><span/><span/></span>
-              <span>Alex is typing…</span>
-            </div>
-          </div>
-          <div className="pt-3 border-t border-border flex items-center gap-2">
-            <div className="flex-1 bg-surface2 rounded-lg px-3 py-2 text-sm text-muted">Message #general…</div>
-            <button className="btn-primary !p-2"><Icon name="send" size={16}/></button>
-          </div>
+        <div className="lb-spec-grid">
+          <table className="lb-table lb-spec-table">
+            <thead>
+              <tr><th>#</th><th>Capability</th><th>Limit</th><th className="lb-th-note">Notes</th></tr>
+            </thead>
+            <tbody>
+              {SPECS.map((s) => (
+                <tr key={s.n}>
+                  <td className="lb-num">{s.n}</td>
+                  <td className="lb-spec-label">{s.label}</td>
+                  <td className="lb-spec-value">{s.value}</td>
+                  <td className="lb-note">{s.note}</td>
+                </tr>
+              ))}
+            </tbody>
+          </table>
+          <LiveProbe />
         </div>
       </div>
     </section>
   );
 }
 
-function Msg({ color, name, time, text }) {
+function LiveProbe() {
+  const [log, setLog] = useState([]);
+  const [up, setUp] = useState(null);
+  const timer = useRef(null);
+  const mounted = useRef(true);
+
+  useEffect(() => {
+    mounted.current = true;
+    let seq = 0;
+    const ping = async () => {
+      const t0 = performance.now();
+      try {
+        const ctrl = new AbortController();
+        const to = setTimeout(() => ctrl.abort(), 8000);
+        const res = await fetch('/api/health', { cache: 'no-store', signal: ctrl.signal });
+        clearTimeout(to);
+        const ms = Math.round(performance.now() - t0);
+        if (!mounted.current) return;
+        setUp(res.ok);
+        seq += 1;
+        setLog((l) => [{ seq, ms, ok: res.ok, at: new Date() }, ...l].slice(0, 6));
+      } catch {
+        if (!mounted.current) return;
+        setUp(false);
+        seq += 1;
+        setLog((l) => [{ seq, ms: null, ok: false, at: new Date() }, ...l].slice(0, 6));
+      }
+    };
+    ping();
+    timer.current = setInterval(ping, 2000);
+    return () => { mounted.current = false; clearInterval(timer.current); };
+  }, []);
+
+  const statusText = up === null ? 'PROBING' : up ? 'ONLINE' : 'UNREACHABLE';
+
   return (
-    <div className="flex gap-3">
-      <div className="w-9 h-9 rounded-full text-white text-sm font-semibold flex items-center justify-center shrink-0" style={{background:color}}>
-        {name[0]}
+    <div className="lb-probe" aria-live="off">
+      <div className="lb-probe-head">
+        <span className={`lb-dot ${up ? 'lb-dot-live' : up === false ? 'lb-dot-dead' : 'lb-dot-wait'}`} aria-hidden="true" />
+        <span className="lb-probe-title">Live probe · /api/health</span>
+        <span className={`lb-probe-status ${up ? 'is-live' : ''}`}>{statusText}</span>
       </div>
-      <div>
-        <div className="flex items-baseline gap-2">
-          <span className="font-medium text-sm">{name}</span>
-          <span className="text-[11px] text-muted">{time}</span>
-        </div>
-        <div className="text-sm mt-0.5">{text}</div>
-      </div>
+      <table className="lb-table lb-probe-table">
+        <thead>
+          <tr><th>Seq</th><th>Response</th><th>Time</th></tr>
+        </thead>
+        <tbody>
+          {log.length === 0 && (
+            <tr><td className="lb-num">—</td><td className="lb-note">measuring…</td><td className="lb-note">—</td></tr>
+          )}
+          {log.map((e) => (
+            <tr key={e.seq}>
+              <td className="lb-num">{String(e.seq).padStart(3, '0')}</td>
+              <td className={e.ok ? 'lb-probe-ms' : 'lb-probe-err'}>
+                {e.ok ? `${e.ms} ms` : 'no reply'}
+              </td>
+              <td className="lb-note">
+                {e.at.toLocaleTimeString([], { hour12: false })}
+              </td>
+            </tr>
+          ))}
+        </tbody>
+      </table>
+      <p className="lb-probe-note">
+        Pings the production API from your browser every 2 s. These are your
+        network&apos;s real round-trips, not a canned number.
+      </p>
     </div>
   );
 }
 
-function Workflow() {
-  const steps = [
-    { icon:'folder', title:'1. Create a project', desc:'Pick a color, add members, invite your team in seconds.' },
-    { icon:'tasks', title:'2. Assign tasks', desc:'Drag cards between columns. Assignees see them instantly.' },
-    { icon:'upload', title:'3. Share files', desc:'Drop designs, specs, contracts — they are attached to the project forever.' },
-    { icon:'chat', title:'4. Ship together', desc:'Debate in the project channel. Mark done. Celebrate 🎉' }
-  ];
-  return (
-    <section id="workflow" className="py-24">
-      <div className="max-w-7xl mx-auto px-6">
-        <div className="text-center max-w-2xl mx-auto mb-14">
-          <div className="chip mb-3"><Icon name="zap" size={12}/> Workflow</div>
-          <h2 className="text-4xl md:text-5xl font-semibold tracking-tight">From zero to shipped in four steps.</h2>
-          <p className="text-muted mt-4 text-lg">No onboarding calls. No 30-page docs. Just open the dashboard and go.</p>
-        </div>
-        <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
-          {steps.map((s,i) => (
-            <div key={s.title} className="card p-6 relative">
-              <div className="absolute -top-3 -right-3 w-8 h-8 rounded-full bg-primary text-primaryFg flex items-center justify-center text-xs font-bold">
-                {i+1}
-              </div>
-              <div className="w-11 h-11 rounded-xl bg-accent/10 text-accent flex items-center justify-center mb-4">
-                <Icon name={s.icon} size={20}/>
-              </div>
-              <h3 className="font-semibold">{s.title}</h3>
-              <p className="text-sm text-muted mt-2">{s.desc}</p>
-            </div>
-          ))}
-        </div>
-      </div>
-    </section>
-  );
-}
+/* ---------- pillars ---------- */
 
-function Testimonials() {
-  const quotes = [
-    { name:'Léa Dubois', role:'CEO, Relay', text:'We replaced 5 tools with Nexa and saved $40k/year. The realtime feels telepathic.' },
-    { name:'James Park', role:'Eng Lead, Tonic', text:'The kanban drag-and-drop is the smoothest I have used on any web app. Period.' },
-    { name:'Maya Fares', role:'Design Director, Kite', text:'Finally a workspace that is actually fast. File uploads feel like AirDrop.' }
-  ];
+function Pillars() {
   return (
-    <section className="py-24 bg-surface/60 border-y border-border/60">
-      <div className="max-w-7xl mx-auto px-6">
-        <div className="text-center max-w-2xl mx-auto mb-12">
-          <h2 className="text-4xl md:text-5xl font-semibold tracking-tight">Teams ship faster with Nexa.</h2>
-        </div>
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-          {quotes.map(q => (
-            <div key={q.name} className="card p-6">
-              <div className="text-3xl text-primary/60 font-serif leading-none">“</div>
-              <p className="text-sm leading-relaxed -mt-4">{q.text}</p>
-              <div className="mt-4 flex items-center gap-3">
-                <div className="w-9 h-9 rounded-full bg-gradient-to-br from-primary to-accent" />
-                <div>
-                  <div className="text-sm font-medium">{q.name}</div>
-                  <div className="text-xs text-muted">{q.role}</div>
-                </div>
-              </div>
-            </div>
-          ))}
-        </div>
+    <section className="lb-section" id="pillars">
+      <div className="lb-rail" aria-hidden="true">
+        <span className="lb-rail-num">02</span>
+        <span className="lb-rail-label">System · capabilities</span>
       </div>
-    </section>
-  );
-}
-
-function Pricing({ onStartTrial }) {
-  const plans = [
-    { name:'Free', price:'$0', desc:'For small teams getting started.', features:['Up to 10 members','1 GB storage','All core features','Community support'], cta:'Start free', featured:false },
-    { name:'Pro', price:'$8', desc:'For growing teams who need speed.', features:['Unlimited members','100 GB storage','Custom roles','Priority support','Audit logs'], cta:'Start 14-day trial', featured:true },
-    { name:'Enterprise', price:'Custom', desc:'For companies with serious requirements.', features:['SSO / SAML','Unlimited storage','Dedicated support','SLA 99.99%','On-prem option'], cta:'Contact sales', featured:false }
-  ];
-  return (
-    <section id="pricing" className="py-24">
-      <div className="max-w-7xl mx-auto px-6">
-        <div className="text-center max-w-2xl mx-auto mb-12">
-          <div className="chip mb-3"><Icon name="sparkle" size={12}/> Pricing</div>
-          <h2 className="text-4xl md:text-5xl font-semibold tracking-tight">Simple, fair pricing.</h2>
-          <p className="text-muted mt-4 text-lg">Per member, per month. No hidden fees. Cancel anytime.</p>
-        </div>
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-4 max-w-5xl mx-auto">
-          {plans.map(p => (
-            <div key={p.name} className={`card p-6 relative ${p.featured ? 'border-primary shadow-soft ring-2 ring-primary/30' : ''}`}>
-              {p.featured && <div className="absolute -top-3 left-1/2 -translate-x-1/2 chip bg-primary text-primaryFg border-primary/40">Most popular</div>}
-              <h3 className="font-semibold text-lg">{p.name}</h3>
-              <div className="mt-2 flex items-baseline gap-1">
-                <span className="text-4xl font-semibold tracking-tight">{p.price}</span>
-                {p.price !== 'Custom' && <span className="text-muted text-sm">/user/mo</span>}
-              </div>
-              <p className="text-sm text-muted mt-2">{p.desc}</p>
-              <button onClick={onStartTrial} className={`w-full mt-5 ${p.featured ? 'btn-primary' : 'btn-outline'}`}>{p.cta}</button>
-              <ul className="mt-5 space-y-2 text-sm">
-                {p.features.map(f => (
-                  <li key={f} className="flex items-start gap-2">
-                    <Icon name="check" size={16} className="text-success mt-0.5 shrink-0"/> {f}
-                  </li>
-                ))}
+      <div className="lb-section-main">
+        {PILLARS.map((p, i) => (
+          <article className="lb-pillar" key={p.n}>
+            <div className="lb-pillar-num" aria-hidden="true">{p.n}</div>
+            <div className="lb-pillar-body">
+              <h3 className="lb-h3">{p.title}</h3>
+              <p className="lb-p">{p.body}</p>
+              <ul className="lb-list">
+                {p.spec.map((s) => <li key={s}>{s}</li>)}
               </ul>
             </div>
-          ))}
-        </div>
+            {i < PILLARS.length - 1 && <div className="lb-rule" aria-hidden="true" />}
+          </article>
+        ))}
       </div>
     </section>
   );
 }
 
-function FAQ() {
-  const qs = [
-    { q:'Do I need a credit card to start?', a:'No. The Free tier is free forever, no card required.' },
-    { q:'Can I self-host Nexa?', a:'Yes. Nexa is MIT-licensed and a single `npm start` runs the whole stack on any Linux box.' },
-    { q:'Is my data encrypted?', a:'All connections are TLS 1.3. Passwords are hashed with bcrypt. End-to-end encryption for files is on the roadmap.' },
-    { q:'Does it integrate with Slack / GitHub / Linear?', a:'Webhook integrations are shipping in v1.1. The API is fully documented today.' },
-    { q:'How realtime is "realtime"?', a:'Native WebSockets with <10ms broadcast latency under normal network conditions.' }
+/* ---------- the board (product truth, set as text) ---------- */
+
+function TheBoard() {
+  const rows = [
+    { t: '14:02:11', who: 'sara', what: 'moved “Landing hero” to Done', ch: '#launch' },
+    { t: '14:02:09', who: 'dev-bot', what: 'build #412 green — deployed to production', ch: '#launch' },
+    { t: '14:01:57', who: 'alex', what: 'uploaded brand-refresh.fig (48 MB)', ch: '#design' },
+    { t: '14:01:44', who: 'maya', what: 'assigned “Pricing table” to alex', ch: '#launch' },
+    { t: '14:01:30', who: 'alex', what: 'sara is on the board', ch: '#launch' },
   ];
-  const [open, setOpen] = React.useState(0);
   return (
-    <section id="faq" className="py-24 bg-surface/60 border-y border-border/60">
-      <div className="max-w-3xl mx-auto px-6">
-        <div className="text-center mb-10">
-          <h2 className="text-4xl md:text-5xl font-semibold tracking-tight">Frequently asked questions</h2>
+    <section className="lb-section" id="board">
+      <div className="lb-rail" aria-hidden="true">
+        <span className="lb-rail-num">03</span>
+        <span className="lb-rail-label">The board · live</span>
+      </div>
+      <div className="lb-section-main">
+        <div className="lb-section-head">
+          <h2 className="lb-h2">What a minute on the board looks like</h2>
+          <p className="lb-section-sub">
+            One minute of a four-person team, set as text — because the product <em>is</em> the
+            activity. Sign in and this is your screen, at this density, at this speed.
+          </p>
         </div>
-        <div className="space-y-2">
-          {qs.map((item,i) => (
-            <div key={item.q} className="card overflow-hidden">
-              <button className="w-full px-5 py-4 flex items-center justify-between text-left" onClick={() => setOpen(open === i ? -1 : i)}>
-                <span className="font-medium">{item.q}</span>
-                <Icon name="chevron" size={16} className={`transition ${open === i ? 'rotate-180' : ''}`} />
+        <table className="lb-table lb-feed-table">
+          <thead>
+            <tr><th>Time</th><th>Member</th><th>Event</th><th className="lb-th-note">Channel</th></tr>
+          </thead>
+          <tbody>
+            {rows.map((r) => (
+              <tr key={r.t + r.who}>
+                <td className="lb-num">{r.t}</td>
+                <td className="lb-feed-who">{r.who}</td>
+                <td>{r.what}</td>
+                <td className="lb-note">{r.ch}</td>
+              </tr>
+            ))}
+          </tbody>
+        </table>
+        <p className="lb-fineprint">Illustrative session from the development workspace; the shipped product streams this live over WebSocket.</p>
+      </div>
+    </section>
+  );
+}
+
+/* ---------- pricing ---------- */
+
+const PLANS = [
+  { name: 'Crew', price: '$0', per: 'forever', desc: 'For a small team getting work moving.', rows: [['Members', 'up to 10'], ['Storage', '1 GB'], ['Channels', 'unlimited'], ['Support', 'community']] },
+  { name: 'Company', price: '$8', per: 'per member / month', desc: 'For teams that live on the board.', rows: [['Members', 'unlimited'], ['Storage', '100 GB'], ['Custom roles', 'included'], ['Support', 'priority'], ['Audit log', 'included']], featured: true },
+  { name: 'Fleet', price: 'Custom', per: 'annual', desc: 'For companies with requirements.', rows: [['Members', 'unlimited'], ['Storage', 'unlimited'], ['SSO / SAML', 'included'], ['Uptime SLA', '99.99%'], ['Self-host', 'option']] },
+];
+
+function Pricing({ onStartTrial }) {
+  return (
+    <section className="lb-section" id="pricing">
+      <div className="lb-rail" aria-hidden="true">
+        <span className="lb-rail-num">04</span>
+        <span className="lb-rail-label">Pricing</span>
+      </div>
+      <div className="lb-section-main">
+        <div className="lb-section-head">
+          <h2 className="lb-h2">Priced per seat, not per feature</h2>
+          <p className="lb-section-sub">Every plan includes the full realtime core. Higher tiers add room to grow.</p>
+        </div>
+        <table className="lb-table lb-price-table">
+          <thead>
+            <tr>
+              <th className="lb-th-plan">Plan</th>
+              <th>Crew</th>
+              <th className="lb-price-featured-col">Company</th>
+              <th>Fleet</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr className="lb-price-row-price">
+              <td className="lb-note">Price</td>
+              <td className="lb-price-num">$0</td>
+              <td className="lb-price-num lb-price-num-accent">$8<span className="lb-price-unit">/user/mo</span></td>
+              <td className="lb-price-num">Custom</td>
+            </tr>
+            {['Members', 'Storage', 'Custom roles', 'SSO / SAML', 'Uptime SLA', 'Support'].map((feat) => (
+              <tr key={feat}>
+                <td className="lb-note">{feat}</td>
+                {PLANS.map((p) => {
+                  const row = p.rows.find(([k]) => k === feat);
+                  return <td key={p.name} className={p.featured ? 'lb-price-cell-featured' : ''}>{row ? row[1] : '—'}</td>;
+                })}
+              </tr>
+            ))}
+            <tr>
+              <td className="lb-note"> </td>
+              {PLANS.map((p) => (
+                <td key={p.name} className={p.featured ? 'lb-price-cell-featured' : ''}>
+                  <button type="button" className={`lb-btn ${p.featured ? 'lb-btn-accent' : 'lb-btn-ghost'} lb-btn-block`} onClick={onStartTrial}>
+                    {p.price === 'Custom' ? 'Contact sales' : p.price === '$0' ? 'Start free' : 'Start 14-day trial'}
+                  </button>
+                </td>
+              ))}
+            </tr>
+          </tbody>
+        </table>
+        <p className="lb-fineprint">Prices in USD. Cancel anytime; your data exports as SQLite + files.</p>
+      </div>
+    </section>
+  );
+}
+
+/* ---------- faq ---------- */
+
+const FAQS = [
+  ['Do I need a card to start?', 'No. The Crew plan is free for up to 10 members, forever, and there is no card field on signup.'],
+  ['How realtime is it, really?', 'The probe at the top of this page is measuring the live API from your browser. In-app updates ride a WebSocket and typically land in under 10 ms on the server side.'],
+  ['Where does my data live?', 'Self-hosted: one SQLite file and an uploads folder on your machine — copy them, back them up, done. Cloud: isolated per workspace.'],
+  ['Can we self-host?', 'Yes, and it is one command: `npm start`. The whole stack — API, WebSockets, database, frontend — runs in a single Node process.'],
+  ['What happens if the connection drops?', 'The client switches to polling automatically and queues what you type. Nothing is lost while offline; everything syncs when you rejoin.'],
+];
+
+function Faq() {
+  const [open, setOpen] = useState(0);
+  return (
+    <section className="lb-section" id="faq">
+      <div className="lb-rail" aria-hidden="true">
+        <span className="lb-rail-num">05</span>
+        <span className="lb-rail-label">Questions</span>
+      </div>
+      <div className="lb-section-main">
+        <div className="lb-section-head"><h2 className="lb-h2">Straight answers</h2></div>
+        <div className="lb-faq">
+          {FAQS.map(([q, a], i) => (
+            <div className={`lb-faq-item ${open === i ? 'is-open' : ''}`} key={q}>
+              <button
+                type="button"
+                className="lb-faq-q"
+                aria-expanded={open === i}
+                onClick={() => setOpen(open === i ? -1 : i)}
+              >
+                <span className="lb-num lb-faq-n">{String(i + 1).padStart(2, '0')}</span>
+                <span>{q}</span>
+                <span className="lb-faq-x" aria-hidden="true">{open === i ? '−' : '+'}</span>
               </button>
-              {open === i && <div className="px-5 pb-4 text-sm text-muted leading-relaxed">{item.a}</div>}
+              {open === i && <p className="lb-faq-a">{a}</p>}
             </div>
           ))}
         </div>
@@ -415,58 +410,45 @@ function FAQ() {
   );
 }
 
-function CTA({ onStartTrial }) {
-  return (
-    <section className="py-24">
-      <div className="max-w-4xl mx-auto px-6">
-        <div className="card p-12 text-center relative overflow-hidden">
-          <div className="absolute inset-0 -z-10 bg-gradient-to-br from-primary/20 via-transparent to-accent/20" />
-          <h2 className="text-4xl md:text-5xl font-semibold tracking-tight">Ready to ship faster?</h2>
-          <p className="text-muted mt-4 text-lg max-w-xl mx-auto">
-            Your team is 2 minutes away from the workspace they will actually love.
-          </p>
-          <button onClick={onStartTrial} className="btn-primary mt-6 !px-6 !py-3 text-base">
-            Create your workspace — it's free
-            <Icon name="arrowLeft" size={16} style={{ transform: 'rotate(180deg)' }}/>
-          </button>
-        </div>
-      </div>
-    </section>
-  );
-}
+/* ---------- footer ---------- */
 
-function Footer() {
+function BoardFooter({ onStartTrial, onSignIn }) {
   return (
-    <footer className="border-t border-border py-12">
-      <div className="max-w-7xl mx-auto px-6 grid grid-cols-2 md:grid-cols-5 gap-8 text-sm">
-        <div className="col-span-2">
-          <div className="flex items-center gap-2">
-            <div className="w-7 h-7 rounded-md bg-gradient-to-br from-primary to-accent flex items-center justify-center text-white">
-              <Icon name="logo" size={14}/>
-            </div>
-            <span className="font-semibold">Nexa</span>
-          </div>
-          <p className="text-muted mt-3 max-w-xs">The realtime workspace for modern companies. Built with obsession, shipped with love.</p>
-        </div>
-        <FooterCol title="Product" items={['Features','Chat','Projects','Files','Pricing']}/>
-        <FooterCol title="Company" items={['About','Blog','Careers','Press','Contact']}/>
-        <FooterCol title="Legal" items={['Privacy','Terms','Security','DPA']}/>
+    <footer className="lb-footer">
+      <div className="lb-rail" aria-hidden="true">
+        <span className="lb-rail-num">06</span>
+        <span className="lb-rail-label">End of board</span>
       </div>
-      <div className="max-w-7xl mx-auto px-6 mt-10 pt-6 border-t border-border flex items-center justify-between text-xs text-muted">
-        <div>© {new Date().getFullYear()} Nexa Labs, Inc.</div>
-        <div>Made with <span className="text-danger">♥</span> for teams that ship.</div>
+      <div className="lb-section-main">
+        <h2 className="lb-h2">Put the company on one board.</h2>
+        <div className="lb-mast-actions lb-footer-actions">
+          <button type="button" className="lb-btn lb-btn-accent lb-btn-lg" onClick={onStartTrial}>Create your workspace</button>
+          <button type="button" className="lb-btn lb-btn-ghost lb-btn-lg" onClick={onSignIn}>Sign in</button>
+        </div>
+        <table className="lb-table lb-footer-meta">
+          <tbody>
+            <tr>
+              <td className="lb-note">Software</td><td>Nexa — realtime workspace</td>
+              <td className="lb-note">Stack</td><td>Node · Fastify · ws · SQLite · React</td>
+            </tr>
+            <tr>
+              <td className="lb-note">License</td><td>MIT (self-host)</td>
+              <td className="lb-note">Status</td><td><span className="lb-dot lb-dot-live" aria-hidden="true" /> deployed</td>
+            </tr>
+          </tbody>
+        </table>
+        <p className="lb-fineprint">© {new Date().getFullYear()} Nexa. Built for teams that ship.</p>
       </div>
     </footer>
   );
 }
 
-function FooterCol({ title, items }) {
+/* ---------- inline SVG (hand-rolled, no icon fonts) ---------- */
+
+function SvgLogo() {
   return (
-    <div>
-      <div className="font-semibold mb-3">{title}</div>
-      <ul className="space-y-2 text-muted">
-        {items.map(i => <li key={i}><a href="#" className="hover:text-fg transition">{i}</a></li>)}
-      </ul>
-    </div>
+    <svg viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
+      <path d="M4 4h16M4 12h10M4 20h16" />
+    </svg>
   );
 }
