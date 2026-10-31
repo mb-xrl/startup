@@ -5,10 +5,11 @@ import path from 'node:path';
 import { fileURLToPath } from 'node:url';
 
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
-const DATA_DIR = path.resolve(__dirname, '../../../data');
+const IS_SERVERLESS = !!process.env.VERCEL || !!process.env.AWS_LAMBDA_FUNCTION_VERSION;
+const DATA_DIR = IS_SERVERLESS ? '/tmp' : path.resolve(__dirname, '../../../data');
 const DB_PATH = path.join(DATA_DIR, 'nexa.db');
 
-if (!fs.existsSync(DATA_DIR)) fs.mkdirSync(DATA_DIR, { recursive: true });
+if (!fs.existsSync(DATA_DIR)) { try { fs.mkdirSync(DATA_DIR, { recursive: true }); } catch {} }
 
 let SQL;
 let db;
@@ -17,18 +18,19 @@ let sqlWasmLocated = false;
 function locateSqlWasm() {
   if (sqlWasmLocated) return;
   sqlWasmLocated = true;
-  // sql.js looks for sql-wasm.wasm relative to itself; in bundlers/serverless we set a global locateFile.
   try {
-    const candidates = [
-      path.resolve(__dirname, '../../../node_modules/sql.js/dist/sql-wasm.wasm'),
-      path.resolve(__dirname, '../node_modules/sql.js/dist/sql-wasm.wasm')
-    ];
-    for (const c of candidates) {
-      if (fs.existsSync(c)) {
-        globalThis.__NEXA_SQL_WASM__ = c;
-        return;
-      }
+    // Try to resolve via Node's require resolution, then fall back to known paths.
+    let resolved = null;
+    try { resolved = require.resolve('sql.js/dist/sql-wasm.wasm'); } catch {}
+    if (!resolved) {
+      const candidates = [
+        path.resolve(__dirname, '../../../node_modules/sql.js/dist/sql-wasm.wasm'),
+        path.resolve(__dirname, '../node_modules/sql.js/dist/sql-wasm.wasm'),
+        '/var/task/node_modules/sql.js/dist/sql-wasm.wasm'
+      ];
+      for (const c of candidates) if (fs.existsSync(c)) { resolved = c; break; }
     }
+    if (resolved) globalThis.__NEXA_SQL_WASM__ = resolved;
   } catch {}
 }
 
