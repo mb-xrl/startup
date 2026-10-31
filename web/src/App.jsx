@@ -22,7 +22,7 @@ function useRoute() {
 export default function App() {
   const [user, setUser] = useState(getStoredUser());
   const [ready, setReady] = useState(false);
-  const [theme, setTheme] = useState(localStorage.getItem('nexa_theme') || 'dark');
+  const [theme, setTheme] = useState(localStorage.getItem('teamroom_theme') ?? localStorage.getItem('nexa_theme') ?? 'dark');
   const [page, setPage] = useState('home');
   const [activeProjectId, setActiveProjectId] = useState(null);
   const [activeChannel, setActiveChannel] = useState('global');
@@ -34,7 +34,7 @@ export default function App() {
 
   useEffect(() => {
     document.documentElement.classList.toggle('dark', theme === 'dark');
-    localStorage.setItem('nexa_theme', theme);
+    localStorage.setItem('teamroom_theme', theme);
   }, [theme]);
 
   const toggleTheme = useCallback(() => setTheme(t => t === 'dark' ? 'light' : 'dark'), []);
@@ -134,7 +134,7 @@ export default function App() {
   };
 
   if (!ready) {
-    return <div className="h-full flex items-center justify-center text-muted">Loading Nexa…</div>;
+    return <div className="h-full flex items-center justify-center text-muted">Loading Teamroom…</div>;
   }
 
   const isLanding = route === '/' && !user;
