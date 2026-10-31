@@ -244,3 +244,12 @@
   .lb-rail-label, .lb-note, .lb-fineprint, .lb-num { color: #444; }
   .lb-btn { border: 1px solid #000; color: #000; }
 }
+
+/* ---------------- download section ---------------- */
+.lb-dl-table .lb-cmd {
+  font-family: var(--lb-mono); font-size: 13px; color: var(--lb-ink);
+  white-space: nowrap; overflow-x: auto;
+}
+.lb-cmd a, .lb-footer-meta a, .lb-probe-note a { color: var(--lb-accent); text-decoration: none; border-bottom: 1px solid var(--lb-rule); }
+.lb-cmd a:hover, .lb-footer-meta a:hover { border-bottom-color: var(--lb-accent); }
+.lb-cmd-inline { font-family: var(--lb-mono); font-size: 12px; background: var(--lb-row); border: 1px solid var(--lb-rule); border-radius: 2px; padding: 1px 6px; }
