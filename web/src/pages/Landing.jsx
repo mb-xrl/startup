@@ -47,24 +47,27 @@ const PILLARS = [
   },
 ];
 
-export default function Landing({ onSignIn, onStartTrial }) {
+const RELEASES_URL = 'https://github.com/mb-xrl/startup/releases/latest';
+const SOURCE_URL = 'https://github.com/mb-xrl/startup';
+
+export default function Landing() {
   return (
     <div className="lb">
-      <BoardNav onSignIn={onSignIn} onStartTrial={onStartTrial} />
-      <Masthead onStartTrial={onStartTrial} onSignIn={onSignIn} />
+      <BoardNav />
+      <Masthead />
       <SpecIndex />
       <Pillars />
       <TheBoard />
-      <Pricing onStartTrial={onStartTrial} />
+      <GetTeamroom />
       <Faq />
-      <BoardFooter onStartTrial={onStartTrial} onSignIn={onSignIn} />
+      <BoardFooter />
     </div>
   );
 }
 
 /* ---------- nav ---------- */
 
-function BoardNav({ onSignIn, onStartTrial }) {
+function BoardNav() {
   return (
     <header className="lb-nav">
       <div className="lb-nav-in">
@@ -75,12 +78,11 @@ function BoardNav({ onSignIn, onStartTrial }) {
         <nav className="lb-nav-links" aria-label="Sections">
           <a href="#system">System</a>
           <a href="#board">Board</a>
-          <a href="#pricing">Pricing</a>
+          <a href="#download">Download</a>
           <a href="#faq">FAQ</a>
         </nav>
         <div className="lb-nav-cta">
-          <button type="button" className="lb-btn lb-btn-ghost" onClick={onSignIn}>Sign in</button>
-          <button type="button" className="lb-btn lb-btn-accent" onClick={onStartTrial}>Create workspace</button>
+          <a className="lb-btn lb-btn-accent" href={RELEASES_URL}>Download</a>
         </div>
       </div>
     </header>
@@ -89,7 +91,7 @@ function BoardNav({ onSignIn, onStartTrial }) {
 
 /* ---------- masthead ---------- */
 
-function Masthead({ onStartTrial, onSignIn }) {
+function Masthead() {
   return (
     <section className="lb-mast" id="top">
       <div className="lb-rail" aria-hidden="true">
@@ -103,18 +105,18 @@ function Masthead({ onStartTrial, onSignIn }) {
         <p className="lb-lead">
           Teamroom puts chat, files, projects and tasks on one live board.
           Every change lands on every screen in under ten milliseconds.
-          No plugins, no integrations to maintain, nothing to sync.
+          It runs on your machine — one process, one database file, nothing to sync.
         </p>
         <div className="lb-mast-actions">
-          <button type="button" className="lb-btn lb-btn-accent lb-btn-lg" onClick={onStartTrial}>
-            Create your workspace
-          </button>
-          <button type="button" className="lb-btn lb-btn-ghost lb-btn-lg" onClick={onSignIn}>
-            Sign in
-          </button>
+          <a className="lb-btn lb-btn-accent lb-btn-lg" href={RELEASES_URL}>
+            Download the latest release
+          </a>
+          <a className="lb-btn lb-btn-ghost lb-btn-lg" href={SOURCE_URL}>
+            View source
+          </a>
         </div>
         <p className="lb-fineprint">
-          Free for up to 10 members. First account becomes the owner. No card required.
+          MIT licensed. Requires Node 20+. Your data stays in one SQLite file on your disk.
         </p>
       </div>
     </section>
@@ -267,7 +269,7 @@ function TheBoard() {
     { t: '14:02:11', who: 'sara', what: 'moved “Landing hero” to Done', ch: '#launch' },
     { t: '14:02:09', who: 'dev-bot', what: 'build #412 green — deployed to production', ch: '#launch' },
     { t: '14:01:57', who: 'alex', what: 'uploaded brand-refresh.fig (48 MB)', ch: '#design' },
-    { t: '14:01:44', who: 'maya', what: 'assigned “Pricing table” to alex', ch: '#launch' },
+    { t: '14:01:44', who: 'maya', what: 'assigned “Launch checklist” to alex', ch: '#launch' },
     { t: '14:01:30', who: 'alex', what: 'sara is on the board', ch: '#launch' },
   ];
   return (
@@ -281,7 +283,7 @@ function TheBoard() {
           <h2 className="lb-h2">What a minute on the board looks like</h2>
           <p className="lb-section-sub">
             One minute of a four-person team, set as text — because the product <em>is</em> the
-            activity. Sign in and this is your screen, at this density, at this speed.
+            activity. Run it and this is your screen, at this density, at this speed.
           </p>
         </div>
         <table className="lb-table lb-feed-table">
@@ -305,64 +307,53 @@ function TheBoard() {
   );
 }
 
-/* ---------- pricing ---------- */
+/* ---------- download ---------- */
 
-const PLANS = [
-  { name: 'Crew', price: '$0', per: 'forever', desc: 'For a small team getting work moving.', rows: [['Members', 'up to 10'], ['Storage', '1 GB'], ['Channels', 'unlimited'], ['Support', 'community']] },
-  { name: 'Company', price: '$8', per: 'per member / month', desc: 'For teams that live on the board.', rows: [['Members', 'unlimited'], ['Storage', '100 GB'], ['Custom roles', 'included'], ['Support', 'priority'], ['Audit log', 'included']], featured: true },
-  { name: 'Fleet', price: 'Custom', per: 'annual', desc: 'For companies with requirements.', rows: [['Members', 'unlimited'], ['Storage', 'unlimited'], ['SSO / SAML', 'included'], ['Uptime SLA', '99.99%'], ['Self-host', 'option']] },
-];
-
-function Pricing({ onStartTrial }) {
+function GetTeamroom() {
   return (
-    <section className="lb-section" id="pricing">
+    <section className="lb-section" id="download">
       <div className="lb-rail" aria-hidden="true">
         <span className="lb-rail-num">04</span>
-        <span className="lb-rail-label">Pricing</span>
+        <span className="lb-rail-label">Download</span>
       </div>
       <div className="lb-section-main">
         <div className="lb-section-head">
-          <h2 className="lb-h2">Priced per seat, not per feature</h2>
-          <p className="lb-section-sub">Every plan includes the full realtime core. Higher tiers add room to grow.</p>
+          <h2 className="lb-h2">Get Teamroom</h2>
+          <p className="lb-section-sub">
+            One download, three commands, your own board. No account, no telemetry, no cloud
+            between you and your team&apos;s data.
+          </p>
         </div>
-        <table className="lb-table lb-price-table">
+        <table className="lb-table lb-dl-table">
           <thead>
-            <tr>
-              <th className="lb-th-plan">Plan</th>
-              <th>Crew</th>
-              <th className="lb-price-featured-col">Company</th>
-              <th>Fleet</th>
-            </tr>
+            <tr><th>Step</th><th>Command</th><th className="lb-th-note">What it does</th></tr>
           </thead>
           <tbody>
-            <tr className="lb-price-row-price">
-              <td className="lb-note">Price</td>
-              <td className="lb-price-num">$0</td>
-              <td className="lb-price-num lb-price-num-accent">$8<span className="lb-price-unit">/user/mo</span></td>
-              <td className="lb-price-num">Custom</td>
-            </tr>
-            {['Members', 'Storage', 'Custom roles', 'SSO / SAML', 'Uptime SLA', 'Support'].map((feat) => (
-              <tr key={feat}>
-                <td className="lb-note">{feat}</td>
-                {PLANS.map((p) => {
-                  const row = p.rows.find(([k]) => k === feat);
-                  return <td key={p.name} className={p.featured ? 'lb-price-cell-featured' : ''}>{row ? row[1] : '—'}</td>;
-                })}
-              </tr>
-            ))}
             <tr>
-              <td className="lb-note"> </td>
-              {PLANS.map((p) => (
-                <td key={p.name} className={p.featured ? 'lb-price-cell-featured' : ''}>
-                  <button type="button" className={`lb-btn ${p.featured ? 'lb-btn-accent' : 'lb-btn-ghost'} lb-btn-block`} onClick={onStartTrial}>
-                    {p.price === 'Custom' ? 'Contact sales' : p.price === '$0' ? 'Start free' : 'Start 14-day trial'}
-                  </button>
-                </td>
-              ))}
+              <td className="lb-num">01</td>
+              <td className="lb-cmd"><a href={RELEASES_URL}>download the release</a> &amp; unzip</td>
+              <td className="lb-note">source + prebuilt frontend, one archive</td>
+            </tr>
+            <tr>
+              <td className="lb-num">02</td>
+              <td className="lb-cmd">npm install</td>
+              <td className="lb-note">pulls server dependencies</td>
+            </tr>
+            <tr>
+              <td className="lb-num">03</td>
+              <td className="lb-cmd">npm start</td>
+              <td className="lb-note">API + WebSockets + UI on http://localhost:8787</td>
             </tr>
           </tbody>
         </table>
-        <p className="lb-fineprint">Prices in USD. Cancel anytime; your data exports as SQLite + files.</p>
+        <div className="lb-mast-actions">
+          <a className="lb-btn lb-btn-accent lb-btn-lg" href={RELEASES_URL}>Download release</a>
+          <a className="lb-btn lb-btn-ghost lb-btn-lg" href={SOURCE_URL}>Clone the repo</a>
+        </div>
+        <p className="lb-fineprint">
+          Requires Node 20+. First account registered on your instance becomes the owner.
+          Data lives in <span className="lb-cmd-inline">data/teamroom.db</span> and the <span className="lb-cmd-inline">uploads/</span> folder — copy those two and you have a full backup.
+        </p>
       </div>
     </section>
   );
@@ -371,10 +362,10 @@ function Pricing({ onStartTrial }) {
 /* ---------- faq ---------- */
 
 const FAQS = [
-  ['Do I need a card to start?', 'No. The Crew plan is free for up to 10 members, forever, and there is no card field on signup.'],
-  ['How realtime is it, really?', 'The probe at the top of this page is measuring the live API from your browser. In-app updates ride a WebSocket and typically land in under 10 ms on the server side.'],
-  ['Where does my data live?', 'Self-hosted: one SQLite file and an uploads folder on your machine — copy them, back them up, done. Cloud: isolated per workspace.'],
-  ['Can we self-host?', 'Yes, and it is one command: `npm start`. The whole stack — API, WebSockets, database, frontend — runs in a single Node process.'],
+  ['Is it really free?', 'Yes. MIT licensed — download it, run it at work, modify it, ship it. There is no paid tier and no account on this site.'],
+  ['How realtime is it, really?', 'In-app updates ride a WebSocket and typically land in under 10 ms on the server side. The probe earlier on this page measures the real round-trip from your browser, if you want numbers.'],
+  ['Where does my data live?', 'On your disk. One SQLite file and an uploads folder. Backing up Teamroom is copying two paths; moving it is dragging them to a new machine.'],
+  ['Does it work on a small server?', 'Yes — the whole stack (API, WebSockets, database, frontend) is a single Node process with no native dependencies. A 1-core VM carries a small company comfortably.'],
   ['What happens if the connection drops?', 'The client switches to polling automatically and queues what you type. Nothing is lost while offline; everything syncs when you rejoin.'],
 ];
 
@@ -412,7 +403,7 @@ function Faq() {
 
 /* ---------- footer ---------- */
 
-function BoardFooter({ onStartTrial, onSignIn }) {
+function BoardFooter() {
   return (
     <footer className="lb-footer">
       <div className="lb-rail" aria-hidden="true">
@@ -422,8 +413,8 @@ function BoardFooter({ onStartTrial, onSignIn }) {
       <div className="lb-section-main">
         <h2 className="lb-h2">Put the company on one board.</h2>
         <div className="lb-mast-actions lb-footer-actions">
-          <button type="button" className="lb-btn lb-btn-accent lb-btn-lg" onClick={onStartTrial}>Create your workspace</button>
-          <button type="button" className="lb-btn lb-btn-ghost lb-btn-lg" onClick={onSignIn}>Sign in</button>
+          <a className="lb-btn lb-btn-accent lb-btn-lg" href={RELEASES_URL}>Download the latest release</a>
+          <a className="lb-btn lb-btn-ghost lb-btn-lg" href={SOURCE_URL}>View source</a>
         </div>
         <table className="lb-table lb-footer-meta">
           <tbody>
@@ -432,8 +423,8 @@ function BoardFooter({ onStartTrial, onSignIn }) {
               <td className="lb-note">Stack</td><td>Node · Fastify · ws · SQLite · React</td>
             </tr>
             <tr>
-              <td className="lb-note">License</td><td>MIT (self-host)</td>
-              <td className="lb-note">Status</td><td><span className="lb-dot lb-dot-live" aria-hidden="true" /> deployed</td>
+              <td className="lb-note">License</td><td>MIT</td>
+              <td className="lb-note">Source</td><td><a href={SOURCE_URL}>github.com/mb-xrl/startup</a></td>
             </tr>
           </tbody>
         </table>

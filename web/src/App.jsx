@@ -143,7 +143,7 @@ export default function App() {
 
   return (
     <AppCtx.Provider value={ctx}>
-      {isLanding && <Landing onSignIn={goSignIn} onStartTrial={goSignUp} />}
+      {isLanding && <Landing />}
       {isLogin && <Login />}
       {isApp && <Dashboard />}
       <ToastContainer toasts={toasts} />
